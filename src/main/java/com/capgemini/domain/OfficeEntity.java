@@ -19,7 +19,7 @@ public class OfficeEntity implements Serializable {
 	private String phoneNumber;
 	
 	@OneToMany(mappedBy = "officeEntity")
-	private Collection<EmployeeEntity> employeesEntities;
+	private Collection<EmployeeEntity> employeeEntities;
 
 	// for hibernate
 	public OfficeEntity() {
@@ -55,11 +55,11 @@ public class OfficeEntity implements Serializable {
 		this.phoneNumber = phoneNumber;
 	}
 	
-	public Collection<EmployeeEntity> getEmployeesEntities() {
-		return employeesEntities;
+	public Collection<EmployeeEntity> getEmployeeEntities() {
+		return employeeEntities;
 	}
 
-	public void setEmployeesEntities(Collection<EmployeeEntity> employeesEntities) {
-		this.employeesEntities = employeesEntities;
+	public void setEmployeesEntities(Collection<EmployeeEntity> employeeEntities) {
+		this.employeeEntities = employeeEntities;
 	}
 }

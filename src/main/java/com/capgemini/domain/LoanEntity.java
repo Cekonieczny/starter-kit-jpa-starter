@@ -15,24 +15,19 @@ public class LoanEntity implements Serializable {
 	private Long id;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    /*@JoinTable(name = "OFFICE",
-            joinColumns = {@JoinColumn(name = "OFFICE_ID", nullable = false)})*/
+	@JoinColumn(name = "OFFICE_FROM_ID", nullable = false)
 	private OfficeEntity officeFrom;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    /*@JoinTable(name = "OFFICE",
-            joinColumns = {@JoinColumn(name = "OFFICE_ID", nullable = false)})*/
+    @JoinColumn(name = "OFFICE_TO_ID", nullable = false)
 	private OfficeEntity officeTo;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(name = "CAR",
-            joinColumns = {@JoinColumn(name = "CAR_ID", nullable = false)})
+	@JoinColumn(name = "CAR_ID", nullable = false)
 	private CarEntity carId;
 
-	
 	@ManyToOne(fetch = FetchType.LAZY)
-    @JoinTable(name = "CUSTOMER",
-            joinColumns = {@JoinColumn(name = "CUSTOMER_ID", nullable = false)})
+	@JoinColumn(name = "CUSTOMER_ID", nullable = false)
 	private CustomerEntity customerId;
 	
 	@Column(nullable = false)

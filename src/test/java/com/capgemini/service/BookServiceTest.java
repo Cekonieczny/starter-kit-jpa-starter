@@ -19,6 +19,7 @@ import com.capgemini.types.BookTO;
 import com.capgemini.types.BookTO.BookTOBuilder;
 
 @RunWith(SpringRunner.class)
+//@SpringBootTest(properties = "spring.profiles.active=test")
 @SpringBootTest
 public class BookServiceTest {
 

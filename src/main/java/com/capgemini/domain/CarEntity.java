@@ -19,24 +19,29 @@ public class CarEntity implements Serializable {
 	private String brand;
 	@Column(nullable = false, length = 30)
 	private String model;
+	@Column(nullable = false)
+	private int engineCapacity;
+	@Column(nullable = false)
+	private int horsepower;
+	@Column(nullable = false, length = 4)
+	private int yearOfManufacture;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "COLOR_ID", nullable = false)
 	private ColorEntity colorEntity;
 	
 	@ManyToOne(fetch = FetchType.LAZY) 
-	//@JoinColumn(name = "CAR_TYPE_ID", nullable = false)
+	@JoinColumn(name = "CAR_TYPE_ID", nullable = false)
 	private CarTypeEntity carTypeEntity;
-	
-	@OneToMany(mappedBy = "carEntity")
-	private Collection<KeeperEntity> keepersEntities;
 
+	@ManyToMany
+	@JoinTable(name="KEEPER",joinColumns={ @JoinColumn(name = "employee_id") },inverseJoinColumns = { @JoinColumn(name = "car_id")})
+	private Collection<EmployeeEntity> employeeEntities;
+	
 	// for hibernate
 	public CarEntity() {
 	}
 	
-
-
 	public CarEntity(Long id, String mileage, String brand, String model, ColorEntity colorEntity,
 			CarTypeEntity carTypeEntity) {
 		this.id = id;
@@ -46,8 +51,6 @@ public class CarEntity implements Serializable {
 		this.colorEntity = colorEntity;
 		this.carTypeEntity = carTypeEntity;
 	}
-
-
 
 	public Long getId() {
 		return id;
@@ -103,13 +106,29 @@ public class CarEntity implements Serializable {
 	public void setCarTypeEntity(CarTypeEntity carTypeEntity) {
 		this.carTypeEntity = carTypeEntity;
 	}
+
+	public Collection<EmployeeEntity> getEmployeeEntities() {
+		return employeeEntities;
+	}
+
+	public void setEmployeeEntities(Collection<EmployeeEntity> employeeEntities) {
+		this.employeeEntities = employeeEntities;
+	}
+
+	public int getEngineCapacity() {
+		return engineCapacity;
+	}
+
+	public void setEngineCapacity(int engineCapacity) {
+		this.engineCapacity = engineCapacity;
+	}
+
+	public int getHorsepower() {
+		return horsepower;
+	}
+
+	public void setHorsepower(int horsepower) {
+		this.horsepower = horsepower;
+	}
 	
-	public Collection<KeeperEntity> getKeepersEntities() {
-		return keepersEntities;
-	}
-
-	public void setKeepersEntities(Collection<KeeperEntity> keepersEntities) {
-		this.keepersEntities = keepersEntities;
-	}
-
 }

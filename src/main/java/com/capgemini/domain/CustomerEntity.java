@@ -19,12 +19,14 @@ public class CustomerEntity implements Serializable {
 	private String surname;
 	@Column(nullable = false, length = 60)
 	private String address;
-	@Column(nullable = false, length = 30)
+	@Column(nullable = false, length = 60)
 	private String email;
 	@Column(nullable = false)
 	private Date birthDate;
 	@Column(length = 16)
 	private String creditCardNumber;
+	@Column(length = 12)
+	private String phoneNumber;
 
 	// for hibernate
 	public CustomerEntity() {

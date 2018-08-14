@@ -22,10 +22,6 @@ public class EmployeeEntity implements Serializable {
 	private Date birthDate;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "COLOR_ID", nullable = false)
-	private ColorEntity colorEntity;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "OFFICE_ID", nullable = false)
 	private OfficeEntity officeEntity;
 	
@@ -33,20 +29,19 @@ public class EmployeeEntity implements Serializable {
 	@JoinColumn(name = "COMPANY_POSITION_ID", nullable = false)
 	private CompanyPositionEntity companyPositionEntity;
 	
-	@OneToMany()
-	private Collection<KeeperEntity> keepersEntities;
+	@ManyToMany(mappedBy = "employeeEntities")
+	private Collection<CarEntity> carEntities;
 
+	
 	// for hibernate
 	public EmployeeEntity() {
 	}
 
-	public EmployeeEntity(Long id, String name, String surname, Date birthDate, ColorEntity colorEntity,
-			OfficeEntity officeEntity, CompanyPositionEntity companyPositionEntity) {
+	public EmployeeEntity(Long id, String name, String surname, Date birthDate,	OfficeEntity officeEntity, CompanyPositionEntity companyPositionEntity) {
 		this.id = id;
 		this.name = name;
 		this.surname = surname;
 		this.birthDate = birthDate;
-		this.colorEntity = colorEntity;
 		this.officeEntity = officeEntity;
 		this.companyPositionEntity = companyPositionEntity;
 	}
@@ -84,14 +79,6 @@ public class EmployeeEntity implements Serializable {
 		this.birthDate = birthDate;
 	}
 
-	public ColorEntity getColorEntity() {
-		return colorEntity;
-	}
-
-	public void setColorEntity(ColorEntity colorEntity) {
-		this.colorEntity = colorEntity;
-	}
-
 	public OfficeEntity getOfficeEntity() {
 		return officeEntity;
 	}
@@ -107,6 +94,8 @@ public class EmployeeEntity implements Serializable {
 	public void setCompanyPositionEntity(CompanyPositionEntity companyPositionEntity) {
 		this.companyPositionEntity = companyPositionEntity;
 	}
+	
+
 
 	
 }
