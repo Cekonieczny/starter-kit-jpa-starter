@@ -13,10 +13,8 @@ public class CustomerEntity implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	@Column(nullable = false, length = 30)
-	private String name;
-	@Column(nullable = false, length = 30)
-	private String surname;
+	@Embedded
+	private Name name;
 	@Column(nullable = false, length = 60)
 	private String address;
 	@Column(nullable = false, length = 60)
@@ -32,6 +30,17 @@ public class CustomerEntity implements Serializable {
 	public CustomerEntity() {
 	}
 
+	public CustomerEntity(Long id, Name name, String address, String email, Date birthDate, String creditCardNumber,
+			String phoneNumber) {
+		this.id = id;
+		this.name = name;
+		this.address = address;
+		this.email = email;
+		this.birthDate = birthDate;
+		this.creditCardNumber = creditCardNumber;
+		this.phoneNumber = phoneNumber;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -40,20 +49,12 @@ public class CustomerEntity implements Serializable {
 		this.id = id;
 	}
 
-	public String getName() {
+	public Name getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(Name name) {
 		this.name = name;
-	}
-
-	public String getSurname() {
-		return surname;
-	}
-
-	public void setSurname(String surname) {
-		this.surname = surname;
 	}
 
 	public String getAddress() {
@@ -86,5 +87,13 @@ public class CustomerEntity implements Serializable {
 
 	public void setCreditCardNumber(String creditCardNumber) {
 		this.creditCardNumber = creditCardNumber;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
 	}
 }

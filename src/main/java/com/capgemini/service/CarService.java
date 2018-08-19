@@ -1,16 +1,22 @@
 package com.capgemini.service;
-import java.util.List;
 
+import java.util.Set;
+
+import com.capgemini.domain.CarType;
 import com.capgemini.types.CarTO;
 
 public interface CarService {
-	CarTO setCarToKeeper(CarTO car, Long keeperId);
 
-	CarTO updateCar(CarTO car);
+	Set<CarTO> findCarByBrandAndType(String brand, CarType carType);
 
-	void deleteCar(CarTO car);
+	Set<CarTO> findCarByKeeper(Long employeeId);
 
-	CarTO saveCar(CarTO car);
-	
-	List<CarTO> findByBrandAndType(String brand, Long carTypeId);
+	CarTO saveCar(CarTO carTO);
+
+	CarTO assignCarToKeeper(Long employeeId, Long carId);
+
+	CarTO updateCar(CarTO carTO);
+
+	void removeCar(Long carId);
+
 }

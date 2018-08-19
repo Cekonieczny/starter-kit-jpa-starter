@@ -1,10 +1,25 @@
 package com.capgemini.domain;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "EMPLOYEE")
@@ -14,38 +29,35 @@ public class EmployeeEntity implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	@Column(nullable = false, length = 30)
-	private String name;
-	@Column(nullable = false, length = 30)
-	private String surname;
+	@Embedded
+	private Name name;
 	@Column(nullable = false)
 	private Date birthDate;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "OFFICE_ID", nullable = false)
-	private OfficeEntity officeEntity;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "COMPANY_POSITION_ID", nullable = false)
-	private CompanyPositionEntity companyPositionEntity;
-	
-	@ManyToMany(mappedBy = "employeeEntities")
-	private Collection<CarEntity> carEntities;
 
-	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "OFFICE_ID")
+	private OfficeEntity officeEntity;
+
+	@Column(nullable = false)
+	@Enumerated(EnumType.ORDINAL)
+	private CompanyPosition companyPosition;
+
+	@ManyToMany(mappedBy = "employeeEntities", fetch = FetchType.LAZY)
+	private Set<CarEntity> carEntities = new HashSet<CarEntity>();
+
 	// for hibernate
 	public EmployeeEntity() {
 	}
 
-	public EmployeeEntity(Long id, String name, String surname, Date birthDate,	OfficeEntity officeEntity, CompanyPositionEntity companyPositionEntity) {
+	public EmployeeEntity(Long id, Name name, Date birthDate, OfficeEntity officeEntity,
+			CompanyPosition companyPosition, Set<CarEntity> carEntities) {
 		this.id = id;
 		this.name = name;
-		this.surname = surname;
 		this.birthDate = birthDate;
 		this.officeEntity = officeEntity;
-		this.companyPositionEntity = companyPositionEntity;
+		this.companyPosition = companyPosition;
+		this.carEntities = carEntities;
 	}
-
 
 	public Long getId() {
 		return id;
@@ -55,20 +67,12 @@ public class EmployeeEntity implements Serializable {
 		this.id = id;
 	}
 
-	public String getName() {
+	public Name getName() {
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(Name name) {
 		this.name = name;
-	}
-
-	public String getSurname() {
-		return surname;
-	}
-
-	public void setSurname(String surname) {
-		this.surname = surname;
 	}
 
 	public Date getBirthDate() {
@@ -87,15 +91,19 @@ public class EmployeeEntity implements Serializable {
 		this.officeEntity = officeEntity;
 	}
 
-	public CompanyPositionEntity getCompanyPositionEntity() {
-		return companyPositionEntity;
+	public CompanyPosition getCompanyPosition() {
+		return companyPosition;
 	}
 
-	public void setCompanyPositionEntity(CompanyPositionEntity companyPositionEntity) {
-		this.companyPositionEntity = companyPositionEntity;
+	public void setCompanyPosition(CompanyPosition companyPosition) {
+		this.companyPosition = companyPosition;
 	}
-	
 
+	public Set<CarEntity> getCarEntities() {
+		return carEntities;
+	}
 
-	
+	public void setCarEntities(Set<CarEntity> carEntities) {
+		this.carEntities = carEntities;
+	}
 }

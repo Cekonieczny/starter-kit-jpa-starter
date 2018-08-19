@@ -1,9 +1,23 @@
 package com.capgemini.domain;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "CAR")
@@ -13,8 +27,8 @@ public class CarEntity implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	@Column(nullable = false, length = 30)
-	private String mileage;
+	@Column(nullable = false)
+	private Integer mileage;
 	@Column(nullable = false, length = 30)
 	private String brand;
 	@Column(nullable = false, length = 30)
@@ -26,30 +40,34 @@ public class CarEntity implements Serializable {
 	@Column(nullable = false, length = 4)
 	private int yearOfManufacture;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "COLOR_ID", nullable = false)
-	private ColorEntity colorEntity;
+	@Column(nullable = false)
+	@Enumerated(EnumType.ORDINAL)
+	private Color color;
 	
-	@ManyToOne(fetch = FetchType.LAZY) 
-	@JoinColumn(name = "CAR_TYPE_ID", nullable = false)
-	private CarTypeEntity carTypeEntity;
 
-	@ManyToMany
+	@Column(nullable = false)
+	@Enumerated(EnumType.ORDINAL)
+	private CarType carType;
+
+	@OneToMany(mappedBy = "carEntity",fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
+	private Set<LoanEntity> loanEntities = new HashSet<LoanEntity>();
+	
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name="KEEPER",joinColumns={ @JoinColumn(name = "employee_id") },inverseJoinColumns = { @JoinColumn(name = "car_id")})
-	private Collection<EmployeeEntity> employeeEntities;
+	private Set<EmployeeEntity> employeeEntities = new HashSet<EmployeeEntity>();
 	
 	// for hibernate
 	public CarEntity() {
 	}
 	
-	public CarEntity(Long id, String mileage, String brand, String model, ColorEntity colorEntity,
-			CarTypeEntity carTypeEntity) {
+	public CarEntity(Long id, Integer mileage, String brand, String model, Color color,
+			CarType carType) {
 		this.id = id;
 		this.mileage = mileage;
 		this.brand = brand;
 		this.model = model;
-		this.colorEntity = colorEntity;
-		this.carTypeEntity = carTypeEntity;
+		this.color = color;
+		this.carType = carType;
 	}
 
 	public Long getId() {
@@ -62,12 +80,12 @@ public class CarEntity implements Serializable {
 	}
 
 
-	public String getMileage() {
+	public Integer getMileage() {
 		return mileage;
 	}
 
 
-	public void setMileage(String mileage) {
+	public void setMileage(Integer mileage) {
 		this.mileage = mileage;
 	}
 
@@ -91,27 +109,27 @@ public class CarEntity implements Serializable {
 		this.model = model;
 	}
 
-	public ColorEntity getColorEntity() {
-		return colorEntity;
+	public Color getColor() {
+		return color;
 	}
 
-	public void setColorEntity(ColorEntity colorEntity) {
-		this.colorEntity = colorEntity;
+	public void setColor(Color color) {
+		this.color= color;
 	}
 
-	public CarTypeEntity getCarTypeEntity() {
-		return carTypeEntity;
+	public CarType getCarType() {
+		return carType;
 	}
 
-	public void setCarTypeEntity(CarTypeEntity carTypeEntity) {
-		this.carTypeEntity = carTypeEntity;
+	public void setCarType(CarType carType) {
+		this.carType = carType;
 	}
 
-	public Collection<EmployeeEntity> getEmployeeEntities() {
+	public Set<EmployeeEntity> getEmployeeEntities() {
 		return employeeEntities;
 	}
 
-	public void setEmployeeEntities(Collection<EmployeeEntity> employeeEntities) {
+	public void setEmployeeEntities(Set<EmployeeEntity> employeeEntities) {
 		this.employeeEntities = employeeEntities;
 	}
 
@@ -130,5 +148,24 @@ public class CarEntity implements Serializable {
 	public void setHorsepower(int horsepower) {
 		this.horsepower = horsepower;
 	}
+
+	public int getYearOfManufacture() {
+		return yearOfManufacture;
+	}
+
+	public void setYearOfManufacture(int yearOfManufacture) {
+		this.yearOfManufacture = yearOfManufacture;
+	}
+
+	public Set<LoanEntity> getLoanEntities() {
+		return loanEntities;
+	}
+
+	public void setLoanEntities(Set<LoanEntity> loanEntities) {
+		this.loanEntities = loanEntities;
+	}
+	
+	
+	
 	
 }

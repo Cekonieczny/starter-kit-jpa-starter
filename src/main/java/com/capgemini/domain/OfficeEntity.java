@@ -1,9 +1,16 @@
 package com.capgemini.domain;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "OFFICE")
@@ -17,9 +24,9 @@ public class OfficeEntity implements Serializable {
 	private String address;
 	@Column(nullable = false, length = 12)
 	private String phoneNumber;
-	
+
 	@OneToMany(mappedBy = "officeEntity")
-	private Collection<EmployeeEntity> employeeEntities;
+	private Set<EmployeeEntity> employeeEntities = new HashSet<EmployeeEntity>();
 
 	// for hibernate
 	public OfficeEntity() {
@@ -54,12 +61,13 @@ public class OfficeEntity implements Serializable {
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
-	
-	public Collection<EmployeeEntity> getEmployeeEntities() {
+
+	public Set<EmployeeEntity> getEmployeeEntities() {
 		return employeeEntities;
 	}
 
-	public void setEmployeesEntities(Collection<EmployeeEntity> employeeEntities) {
+	public void setEmployeeEntities(Set<EmployeeEntity> employeeEntities) {
 		this.employeeEntities = employeeEntities;
 	}
+	
 }

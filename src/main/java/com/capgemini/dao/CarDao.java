@@ -1,9 +1,11 @@
 package com.capgemini.dao;
 
-import java.util.List;
+import java.util.Set;
 
 import com.capgemini.domain.CarEntity;
+import com.capgemini.domain.CarType;
 
 public interface CarDao extends Dao<CarEntity, Long> {
-	List<CarEntity> findByBrandAndType(String brand, Long typeId);
+	Set<CarEntity> findByBrandAndType(String brand, CarType carType);
+	Set<CarEntity> findCarByEmployee(Long employeeId);
 }

@@ -16,19 +16,19 @@ public class LoanEntity implements Serializable {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "OFFICE_FROM_ID", nullable = false)
-	private OfficeEntity officeFrom;
+	private OfficeEntity officeEntityFrom;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "OFFICE_TO_ID", nullable = false)
-	private OfficeEntity officeTo;
+	private OfficeEntity officeEntityTo;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CAR_ID", nullable = false)
-	private CarEntity carId;
+	private CarEntity carEntity;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CUSTOMER_ID", nullable = false)
-	private CustomerEntity customerId;
+	private CustomerEntity customerEntity;
 	
 	@Column(nullable = false)
 	private Date dateFrom;
@@ -44,10 +44,10 @@ public class LoanEntity implements Serializable {
 	public LoanEntity(Long id, OfficeEntity officeFrom, OfficeEntity officeTo, CarEntity carId,
 			CustomerEntity customerId, Date dateFrom, Date dateTo, int price) {
 		this.id = id;
-		this.officeFrom = officeFrom;
-		this.officeTo = officeTo;
-		this.carId = carId;
-		this.customerId = customerId;
+		this.officeEntityFrom = officeFrom;
+		this.officeEntityTo = officeTo;
+		this.carEntity = carId;
+		this.customerEntity = customerId;
 		this.dateFrom = dateFrom;
 		this.dateTo = dateTo;
 		this.price = price;
@@ -64,43 +64,43 @@ public class LoanEntity implements Serializable {
 	}
 
 
-	public OfficeEntity getOfficeFrom() {
-		return officeFrom;
+	public OfficeEntity getOfficeEntityFrom() {
+		return officeEntityFrom;
 	}
 
 
-	public void setOfficeFrom(OfficeEntity officeFrom) {
-		this.officeFrom = officeFrom;
+	public void setOfficeEntityFrom(OfficeEntity officeEntityFrom) {
+		this.officeEntityFrom = officeEntityFrom;
 	}
 
 
-	public OfficeEntity getOfficeTo() {
-		return officeTo;
+	public OfficeEntity getOfficeEntityTo() {
+		return officeEntityTo;
 	}
 
 
-	public void setOfficeTo(OfficeEntity officeTo) {
-		this.officeTo = officeTo;
+	public void setOfficeEntityTo(OfficeEntity officeEntityTo) {
+		this.officeEntityTo = officeEntityTo;
 	}
 
 
-	public CarEntity getCarId() {
-		return carId;
+	public CarEntity getCarEntity() {
+		return carEntity;
 	}
 
 
-	public void setCarId(CarEntity carId) {
-		this.carId = carId;
+	public void setCarEntity(CarEntity carEntity) {
+		this.carEntity = carEntity;
 	}
 
 
-	public CustomerEntity getCustomerId() {
-		return customerId;
+	public CustomerEntity getCustomerEntity() {
+		return customerEntity;
 	}
 
 
-	public void setCustomerId(CustomerEntity customerId) {
-		this.customerId = customerId;
+	public void setCustomerEntity(CustomerEntity customerEntity) {
+		this.customerEntity = customerEntity;
 	}
 
 
@@ -131,5 +131,5 @@ public class LoanEntity implements Serializable {
 
 	public void setPrice(int price) {
 		this.price = price;
-	}	
+	}
 }
