@@ -36,8 +36,8 @@ import com.capgemini.types.CarTO.CarTOBuilder;
 
 @Transactional
 @RunWith(SpringRunner.class)
-// @SpringBootTest(properties = "spring.profiles.active=test")
-@SpringBootTest
+@SpringBootTest(properties = "spring.profiles.active=hsql")
+//@SpringBootTest(properties = "spring.profiles.active=mysql")
 public class CarServiceTest {
 	
 	@PersistenceContext

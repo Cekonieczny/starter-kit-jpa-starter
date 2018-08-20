@@ -9,7 +9,7 @@ public class StarterKitJpaStarterApplication {
 	public static void main(String[] args) {
 		//Uncomment line below to use mysql database (default database name = jstk, user = jstk, pass = jstk)
 		//you can change this in application-mysql.properties
-		System.setProperty("spring.profiles.active", "mysql");
+		System.setProperty("spring.profiles.active", "hsql");
 
 		SpringApplication.run(StarterKitJpaStarterApplication.class, args);
 	}
