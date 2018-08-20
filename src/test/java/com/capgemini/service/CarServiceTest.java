@@ -4,8 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -37,9 +38,9 @@ import com.capgemini.types.CarTO.CarTOBuilder;
 @Transactional
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = "spring.profiles.active=hsql")
-//@SpringBootTest(properties = "spring.profiles.active=mysql")
+// @SpringBootTest(properties = "spring.profiles.active=mysql")
 public class CarServiceTest {
-	
+
 	@PersistenceContext
 	private EntityManager em;
 
@@ -68,14 +69,6 @@ public class CarServiceTest {
 		// then
 		assertNotNull(savedCar);
 		assertTrue(selectedCar.equals(savedCar));
-		/*assertEquals(savedCar.getBrand(), carEntity.getBrand());
-		assertEquals(savedCar.getCarType(), carEntity.getCarType());
-		assertEquals(savedCar.getColor(), carEntity.getColor());
-		assertEquals(savedCar.getEngineCapacity(), carEntity.getEngineCapacity());
-		assertEquals(savedCar.getHorsepower(), carEntity.getHorsepower());
-		assertEquals(savedCar.getMileage(), carEntity.getMileage());
-		assertEquals(savedCar.getModel(), carEntity.getModel());
-		assertEquals(savedCar.getYearOfManufacture(), carEntity.getYearOfManufacture());*/
 	}
 
 	@Test
@@ -83,29 +76,20 @@ public class CarServiceTest {
 
 		// given
 		CarTO testCar = getTestCarTO();
-		CarTO savedCar = carService.saveCar(testCar);
+		CarEntity savedCar = carRepository.save(CarMapper.toCarEntity(testCar));
 		// when
-		CarTO updatedCar = savedCar;
+		CarEntity updatedCar = savedCar;
 		String updatedBrand = "updatedBrand";
 		int updatedHorsepower = 210;
 		updatedCar.setBrand(updatedBrand);
 		updatedCar.setHorsepower(updatedHorsepower);
 
-		carService.updateCar(updatedCar);
-		CarEntity carEntity = carRepository.findOne(savedCar.getId());
-		CarTO selectedCar = CarMapper.toCarTO(carEntity);
+		carService.updateCar(CarMapper.toCarTO(updatedCar));
+		CarEntity selectedCar = carRepository.findOne(savedCar.getId());
 
 		// then
 		assertNotNull(updatedCar);
 		assertTrue(selectedCar.equals(updatedCar));
-		/*assertEquals(carEntity.getBrand(), updatedCar.getBrand());
-		assertEquals(carEntity.getCarType(), updatedCar.getCarType());
-		assertEquals(carEntity.getColor(), updatedCar.getColor());
-		assertEquals(carEntity.getEngineCapacity(), updatedCar.getEngineCapacity());
-		assertEquals(carEntity.getHorsepower(), updatedCar.getHorsepower());
-		assertEquals(carEntity.getMileage(), updatedCar.getMileage());
-		assertEquals(carEntity.getModel(), updatedCar.getModel());
-		assertEquals(carEntity.getYearOfManufacture(), updatedCar.getYearOfManufacture());*/
 	}
 
 	@Test
@@ -113,14 +97,13 @@ public class CarServiceTest {
 
 		// given
 		CarTO testCar = getTestCarTO();
+		CarEntity savedCar = carRepository.save(CarMapper.toCarEntity(testCar));
 		// when
-		CarTO savedCar = carService.saveCar(testCar);
-		CarEntity carEntity = carRepository.findOne(savedCar.getId());
-		assertNotNull(carEntity);
+		assertNotNull(savedCar);
 		carService.removeCar(savedCar.getId());
-		carEntity = carRepository.findOne(savedCar.getId());
+		CarEntity removedCar = carRepository.findOne(savedCar.getId());
 		// then
-		assertEquals(null, carEntity);
+		assertEquals(null, removedCar);
 	}
 
 	@Test
@@ -139,10 +122,10 @@ public class CarServiceTest {
 		CarTO testCar4 = new CarTOBuilder().withBrand("Skoda").withCarType(CarType.SEDAN).withColor(Color.RED)
 				.withHorsepower(123).withEngineCapacity(400).withMileage(300000).withModel("Octavia")
 				.withYearOfManufacture(2004).build();
-		carService.saveCar(testCar);
-		carService.saveCar(testCar2);
-		carService.saveCar(testCar3);
-		carService.saveCar(testCar4);
+		carRepository.save(CarMapper.toCarEntity(testCar));
+		carRepository.save(CarMapper.toCarEntity(testCar2));
+		carRepository.save(CarMapper.toCarEntity(testCar3));
+		carRepository.save(CarMapper.toCarEntity(testCar4));
 		// when
 		Set<CarTO> selectedCars = carService.findCarByBrandAndType(searchedBrand, searchedType);
 		// then
@@ -159,7 +142,7 @@ public class CarServiceTest {
 
 		// given
 		CarTO testCar = getTestCarTO();
-		CarTO savedCar = carService.saveCar(testCar);
+		CarEntity savedCar = carRepository.save(CarMapper.toCarEntity(testCar));
 
 		EmployeeEntity testEmployee = getTestEmployeeEntity();
 
@@ -174,115 +157,247 @@ public class CarServiceTest {
 		assertTrue(finalCarEntity.getEmployeeEntities().contains(finalEmployeeEntity));
 		assertTrue(finalEmployeeEntity.getCarEntities().contains(finalCarEntity));
 	}
-	
-	@Test
-	public void shouldFindCarByKeeper(){
-		// given
-				CarTO testCar = getTestCarTO();
-				CarTO savedCar = carService.saveCar(testCar);
-				
-				EmployeeEntity savedEmployee = employeeRepository.save(getTestEmployeeEntity());
 
-				carService.assignCarToKeeper(savedEmployee.getId(), savedCar.getId());
-				
-		// when
-				
-				Set<CarTO> selectedCarSet = carService.findCarByKeeper(savedEmployee.getId());
+	@Test
+	public void shouldFindCarByKeeper() {
+		// given
+		CarTO testCar = getTestCarTO();
+		CarEntity savedCar = carRepository.save(CarMapper.toCarEntity(testCar));
 		
-		//then 
-				assertEquals(1,selectedCarSet.size());
-				assertTrue(selectedCarSet.contains(savedCar));
+		CarTO testCar2 = getTestCarTO();
+		CarEntity savedCar2 = carRepository.save(CarMapper.toCarEntity(testCar2));
+
+		EmployeeEntity savedEmployee = employeeRepository.save(getTestEmployeeEntity());
+		EmployeeEntity savedEmployee2 = employeeRepository.save(getTestEmployeeEntity());
+
+		carService.assignCarToKeeper(savedEmployee.getId(), savedCar.getId());
+		carService.assignCarToKeeper(savedEmployee2.getId(), savedCar2.getId());
+
+		// when
+
+		Set<CarTO> selectedCarSet = carService.findCarByKeeper(savedEmployee.getId());
+
+		// then
+		assertEquals(1, selectedCarSet.size());
+		assertTrue(selectedCarSet.contains(CarMapper.toCarTO(savedCar)));
 	}
-	
+
 	@Test
 	public void shouldRemoveAssociatedLoansOnRemoveCar() {
 
 		// given
-		Set<LoanEntity> loanEntities = getTestLoanEntities();
-		LoanEntity loan1 = loanEntities.iterator().next();
-		LoanEntity loan2 = loanEntities.iterator().next();
+		Date testDate = new Date();
+		CarEntity savedCar = insertTestCar();
+		CustomerEntity savedCustomer = insertTestCustomer();
+
+		LoanEntity loan1 = insertTestLoan(testDate, testDate, savedCar, savedCustomer);
+		LoanEntity loan2 = insertTestLoan(testDate, testDate, savedCar, savedCustomer);
+		Set<LoanEntity> loanEntities = savedCar.getLoanEntities();
+		loanEntities.add(loan1);
+		loanEntities.add(loan2);
+
+		savedCar.setLoanEntities(loanEntities);
+		carRepository.update(savedCar);
+
 		// when
-		CarEntity carEntity = carRepository.findOne(loan1.getCarEntity().getId());
-		assertNotNull(carEntity);
+		assertNotNull(savedCar);
 		assertNotNull(em.find(loan1.getClass(), loan1.getId()));
 		assertNotNull(em.find(loan2.getClass(), loan2.getId()));
-		carService.removeCar(loan1.getCarEntity().getId());
-		carEntity = carRepository.findOne(loan1.getCarEntity().getId());
+		carService.removeCar(savedCar.getId());
+		CarEntity carEntity = carRepository.findOne(savedCar.getId());
 		assertEquals(null, carEntity);
 		// then
 		assertEquals(null, em.find(loan1.getClass(), loan1.getId()));
 		assertEquals(null, em.find(loan2.getClass(), loan2.getId()));
 	}
 
-	private Set<LoanEntity> getTestLoanEntities(){
-		CarTO savedCar = carService.saveCar(getTestCarTO());
-		Date testDate = new Date();
-		
-		OfficeEntity office1 = new OfficeEntity();
-		office1.setAddress("officeAddress1");
-		office1.setPhoneNumber("+48555666777");
-		OfficeEntity office2 = new OfficeEntity();
-		office2.setAddress("officeAddress2");
-		office2.setPhoneNumber("+48222666777");
-		office1 = officeRepository.save(office1);
-		office2 = officeRepository.save(office2);
-		
+	@Test
+	public void shouldNotRemoveLoanAssociatedEntitiesOnRemoveCar() {
 
-		CustomerEntity customer1 = new CustomerEntity();
-		customer1.setAddress("customerAddres1");
-		customer1.setBirthDate(testDate);
-		customer1.setCreditCardNumber("1234567891012145");
-		customer1.setEmail("email1");
-		Name testName = new Name("Adam","Maciejewski");
-		customer1.setName(testName);
-		em.persist(customer1);
+		// given
+		Date testDate = new Date();
+		CarEntity savedCar = insertTestCar();
+		CustomerEntity savedCustomer = insertTestCustomer();
+
+		LoanEntity loan1 = insertTestLoan(testDate, testDate, savedCar, savedCustomer);
+		LoanEntity loan2 = insertTestLoan(testDate, testDate, savedCar, savedCustomer);
 		
-		CustomerEntity customer2 = new CustomerEntity();
-		customer2.setAddress("customerAddres2");
-		customer2.setBirthDate(testDate);
-		customer2.setCreditCardNumber("1234537891012145");
-		customer2.setEmail("email2");
-		Name testName2 = new Name("Maciej","Adamski");
-		customer2.setName(testName2);
-		em.persist(customer2);
+		OfficeEntity officeEntity1 = loan1.getOfficeEntityFrom();
+		OfficeEntity officeEntity2 = loan2.getOfficeEntityFrom();
 		
-		LoanEntity loan1 = new LoanEntity();
-		loan1.setCustomerEntity(customer1);
-		loan1.setCarEntity(CarMapper.toCarEntity(savedCar));
-		loan1.setDateFrom(testDate);
-		loan1.setDateTo(testDate);
-		loan1.setOfficeEntityFrom(office1);
-		loan1.setOfficeEntityTo(office2);
-		loan1.setPrice(1234);
-		em.persist(loan1);
-		
-		LoanEntity loan2 = new LoanEntity();
-		loan2.setCustomerEntity(customer2);
-		loan2.setCarEntity(CarMapper.toCarEntity(savedCar));
-		loan2.setDateFrom(testDate);
-		loan2.setDateTo(testDate);
-		loan2.setOfficeEntityFrom(office2);
-		loan2.setOfficeEntityTo(office1);
-		loan2.setPrice(1223);
-		em.persist(loan2);
-		
-		Set<LoanEntity> loanEntities = new HashSet<LoanEntity>();
+		Set<LoanEntity> loanEntities = savedCar.getLoanEntities();
 		loanEntities.add(loan1);
 		loanEntities.add(loan2);
-		
-		CarEntity testCarEntity = carRepository.findOne(savedCar.getId());
-		testCarEntity.setLoanEntities(loanEntities);
-		
-		loan1.setCarEntity(testCarEntity);
-		loan2.setCarEntity(testCarEntity);	
-		
-		em.merge(loan1);
-		em.merge(loan2);
-		em.merge(testCarEntity);
-		
-		return loanEntities;
+
+		savedCar.setLoanEntities(loanEntities);
+		carRepository.update(savedCar);
+
+		// when
+		assertNotNull(savedCar);
+		assertNotNull(em.find(loan1.getClass(), loan1.getId()));
+		assertNotNull(em.find(loan2.getClass(), loan2.getId()));
+		carService.removeCar(savedCar.getId());
+		CarEntity carEntity = carRepository.findOne(savedCar.getId());
+		assertEquals(null, carEntity);
+		// then
+		assertNotNull(em.find(savedCustomer.getClass(), savedCustomer.getId()));
+		assertNotNull(em.find(officeEntity1.getClass(), officeEntity1.getId()));
+		assertNotNull(em.find(officeEntity2.getClass(), officeEntity2.getId()));
+	}
+
+	@Test
+	public void shouldFindCarLoanedByMoreThanTenDistinctCustomers() {
+		// given
+		Date testDate = new Date();
+
+		CarEntity savedCar = insertTestCar();
+		for (int i = 0; i < 11; i++) {
+			insertTestLoan(testDate, testDate, savedCar, insertTestCustomer());
+		}
+
+		// when
+		Set<CarEntity> searchedCars = carRepository.findCarLoanedByMoreThanTenDistinctCustomers();
+		// then
+		assertTrue(searchedCars.contains(savedCar));
 	}
 	
+	@Test
+	public void shouldNotFindCarLoanedByLessThanTenDistinctCustomers() {
+		// given
+		Date testDate = new Date();
+
+		CarEntity savedCar = insertTestCar();
+		for (int i = 0; i < 10; i++) {
+			insertTestLoan(testDate, testDate, savedCar, insertTestCustomer());
+		}
+
+		// when
+		Set<CarEntity> searchedCars = carRepository.findCarLoanedByMoreThanTenDistinctCustomers();
+		// then
+		assertTrue(!searchedCars.contains(savedCar));
+	}
+
+	@Test
+	public void shouldNotFindCarsLoanedByTheSameCustomerMoreThanTenTimes() {
+		// given
+		Date testDate = new Date();
+		CarEntity savedCar = insertTestCar();
+		CustomerEntity savedCustomer = insertTestCustomer();
+		for (int i = 0; i < 11; i++) {
+			insertTestLoan(testDate, testDate, savedCar, savedCustomer);
+		}
+
+		// when
+		Set<CarEntity> searchedCars = carRepository.findCarLoanedByMoreThanTenDistinctCustomers();
+		// then
+		assertTrue(!searchedCars.contains(savedCar));
+	}
+
+	@Test
+	public void shouldcountNumberOfCarsLoanedWhenLoanedBeforeDateFromAndReturnedBeforeDateTo() throws ParseException {
+		// given
+		Date wrongDate = new Date();
+		Date loanDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2013-12-12 00:00:00");
+		Date returnDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Long presetCount = 5L;
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(loanDate, returnDate, insertTestCar(), insertTestCustomer());
+		}
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(wrongDate, wrongDate, insertTestCar(), insertTestCustomer());
+		}
+		// when
+		Date dateFrom = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Date dateTo = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-02-02 00:00:00");
+		Long count = carRepository.countNumberOfCarsLoanedInACertainPeriodOfTime(dateFrom, dateTo);
+		// then
+		assertTrue(presetCount.equals(count));
+	}
+
+	@Test
+	public void shouldcountNumberOfCarsLoanedWhenLoanedBeforeDateFromAndReturnedOnDateTo() throws ParseException {
+		// given
+		Date wrongDate = new Date();
+		Date loanDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2013-12-12 00:00:00");
+		Date returnDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Long presetCount = 5L;
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(loanDate, returnDate, insertTestCar(), insertTestCustomer());
+		}
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(wrongDate, wrongDate, insertTestCar(), insertTestCustomer());
+		}
+		// when
+		Date dateFrom = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Date dateTo = returnDate;
+		Long count = carRepository.countNumberOfCarsLoanedInACertainPeriodOfTime(dateFrom, dateTo);
+		// then
+		assertTrue(presetCount.equals(count));
+	}
+
+	@Test
+	public void shouldcountNumberOfCarsLoanedWhenLoanedAfterDateFromAndReturnedBeforeDateTo() throws ParseException {
+		// given
+		Date wrongDate = new Date();
+		Date loanDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Date returnDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Long presetCount = 5L;
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(loanDate, returnDate, insertTestCar(), insertTestCustomer());
+		}
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(wrongDate, wrongDate, insertTestCar(), insertTestCustomer());
+		}
+		// when
+		Date dateFrom = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2013-12-12 00:00:00");
+		Date dateTo = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-02-02 00:00:00");
+		Long count = carRepository.countNumberOfCarsLoanedInACertainPeriodOfTime(dateFrom, dateTo);
+		// then
+		assertTrue(presetCount.equals(count));
+	}
+
+	@Test
+	public void shouldcountNumberOfCarsLoanedWhenLoanedOnDateFromAndReturnedBeforeDateTo() throws ParseException {
+		// given
+		Date wrongDate = new Date();
+		Date loanDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Date returnDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Long presetCount = 5L;
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(loanDate, returnDate, insertTestCar(), insertTestCustomer());
+		}
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(wrongDate, wrongDate, insertTestCar(), insertTestCustomer());
+		}
+		// when
+		Date dateFrom = loanDate;
+		Date dateTo = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-02-02 00:00:00");
+		Long count = carRepository.countNumberOfCarsLoanedInACertainPeriodOfTime(dateFrom, dateTo);
+		// then
+		assertTrue(presetCount.equals(count));
+	}
+
+	@Test
+	public void shouldcountNumberOfCarsLoanedWhenLoanedOnDateFromAndReturnedOnDateTo() throws ParseException {
+		// given
+		Date wrongDate = new Date();
+		Date loanDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Date returnDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").parse("2014-01-01 00:00:00");
+		Long presetCount = 5L;
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(loanDate, returnDate, insertTestCar(), insertTestCustomer());
+		}
+		for (int i = 0; i < presetCount; i++) {
+			insertTestLoan(wrongDate, wrongDate, insertTestCar(), insertTestCustomer());
+		}
+		// when
+		Date dateFrom = loanDate;
+		Date dateTo = returnDate;
+		Long count = carRepository.countNumberOfCarsLoanedInACertainPeriodOfTime(dateFrom, dateTo);
+		// then
+		assertTrue(presetCount.equals(count));
+	}
+
 	private CarTO getTestCarTO() {
 		int horsepower = 200;
 		int engineCapacity = 100;
@@ -293,19 +408,73 @@ public class CarServiceTest {
 		return testCar;
 	}
 
-	private EmployeeEntity getTestEmployeeEntity(){
+	private EmployeeEntity getTestEmployeeEntity() {
 		OfficeEntity testOffice = new OfficeEntity();
 		testOffice.setAddress("Poznanska 123, Kalisz");
 		testOffice.setPhoneNumber("+48222333444");
 		OfficeEntity savedOffice = officeRepository.save(testOffice);
-		
+
 		Date testDate = new Date();
 		EmployeeEntity testEmployee = new EmployeeEntity();
-		Name testName = new Name("Adam","Maciejewski");
+		Name testName = new Name("Adam", "Maciejewski");
 		testEmployee.setName(testName);
 		testEmployee.setCompanyPosition(CompanyPosition.DEALER);
 		testEmployee.setOfficeEntity(savedOffice);
 		testEmployee.setBirthDate(testDate);
 		return testEmployee;
 	}
+
+	private CustomerEntity getTestCustomerEntity() {
+		Date testDate = new Date();
+		CustomerEntity testCustomer = new CustomerEntity();
+		testCustomer.setAddress("customerAddres1");
+		testCustomer.setBirthDate(testDate);
+		testCustomer.setCreditCardNumber("1234567891012145");
+		testCustomer.setEmail("email1");
+		Name testName = new Name("Adam", "Maciejewski");
+		testCustomer.setName(testName);
+		return testCustomer;
+	}
+
+	private LoanEntity getTestLoanEntity(Date dateFrom, Date dateTo, CarEntity carEntity,
+			CustomerEntity customerEntity) {
+
+		OfficeEntity office1 = new OfficeEntity();
+		office1.setAddress("officeAddress1");
+		office1.setPhoneNumber("+48555666777");
+		OfficeEntity office2 = new OfficeEntity();
+		office2.setAddress("officeAddress2");
+		office2.setPhoneNumber("+48222666777");
+		office1 = officeRepository.save(office1);
+		office2 = officeRepository.save(office2);
+
+		LoanEntity testLoan = new LoanEntity();
+		testLoan.setCustomerEntity(customerEntity);
+		testLoan.setCarEntity(carEntity);
+		testLoan.setDateFrom(dateFrom);
+		testLoan.setDateTo(dateTo);
+		testLoan.setOfficeEntityFrom(office1);
+		testLoan.setOfficeEntityTo(office2);
+		testLoan.setPrice(1234);
+		return testLoan;
+	}
+
+	private LoanEntity insertTestLoan(Date dateFrom, Date dateTo, CarEntity carEntity, CustomerEntity customerEntity) {
+		LoanEntity testLoan = getTestLoanEntity(dateFrom, dateTo, carEntity, customerEntity);
+		em.persist(testLoan);
+		return testLoan;
+	}
+
+	private CarEntity insertTestCar() {
+		CarEntity testCarEntity = CarMapper.toCarEntity(getTestCarTO());
+		em.persist(testCarEntity);
+		return testCarEntity;
+	}
+
+	private CustomerEntity insertTestCustomer() {
+		CustomerEntity testCustomer = getTestCustomerEntity();
+		em.persist(testCustomer);
+		return testCustomer;
+	}
+
 }

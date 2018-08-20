@@ -1,5 +1,6 @@
 package com.capgemini.dao.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -7,16 +8,13 @@ import java.util.stream.Collectors;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.stereotype.Repository;
 
 import com.capgemini.dao.EmployeeDao;
-import com.capgemini.domain.CompanyPosition;
 import com.capgemini.domain.EmployeeEntity;
-import com.capgemini.domain.OfficeEntity;
 import com.capgemini.searchcriteria.EmployeeSearchCriteria;
 
 @Repository
@@ -39,36 +37,27 @@ public class EmployeeDaoImpl extends AbstractDao<EmployeeEntity, Long> implement
 		query.setParameter("carId", carId);
 		return query.getResultList().stream().collect(Collectors.toSet());
 	}
+
 	@Override
-	public List<EmployeeEntity> findEmployeeByGivenCriteria(List<EmployeeSearchCriteria> params) {
-		String queryBody = "SELECT e FROM EmployeeEntity e ";
-		TypedQuery<EmployeeEntity> query = entityManager.createQuery(queryBody, EmployeeEntity.class);
+	public List<EmployeeEntity> findEmployeeByGivenCriteria(EmployeeSearchCriteria param) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<EmployeeEntity> cq = cb.createQuery(EmployeeEntity.class);
+		Root<EmployeeEntity> employee = cq.from(EmployeeEntity.class);
 
-		for (EmployeeSearchCriteria param : params) {
+		List<Predicate> predicates = new ArrayList<Predicate>();
 
 			if (param.getOfficeId() != null) {
-				queryBody = queryBody + "JOIN e.officeEntity o ON o.id=:officeId";
+				predicates.add((employee.join("officeEntity").get("id").in(param.getOfficeId())));
 			}
 			if (param.getKeepedCarId() != null) {
-				queryBody = queryBody + " JOIN e.carEntities c ON c.id=:carId";
+				predicates.add((employee.join("carEntities").get("id").in(param.getKeepedCarId())));
 			}
 			if (param.getCompanyPosition() != null) {
-				queryBody = queryBody + " WHERE e.companyPosition=:companyPosition";	
+				predicates.add(cb.equal(employee.get("companyPosition"), param.getCompanyPosition()));
 			}
-			
-			query = entityManager.createQuery(queryBody, EmployeeEntity.class);
-			
-			if (param.getOfficeId() != null) {
-				query.setParameter("officeId", param.getOfficeId());
-			}
-			if (param.getKeepedCarId() != null) {
-				query.setParameter("carId", param.getKeepedCarId());
-			}
-			if (param.getCompanyPosition() != null) {
-				query.setParameter("companyPosition", param.getCompanyPosition());
-			}
-		}
-		return query.getResultList();
+		
+		cq.select(employee).where(predicates.toArray(new Predicate[] {}));
+		return entityManager.createQuery(cq).getResultList();
 	}
 
 }

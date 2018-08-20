@@ -9,5 +9,5 @@ import com.capgemini.searchcriteria.EmployeeSearchCriteria;
 public interface EmployeeDao extends Dao<EmployeeEntity, Long>{
 	Set<EmployeeEntity> findByOffice(Long officeId);
 	Set<EmployeeEntity> findByOfficeAndCarKeeped(Long officeId,Long carId);
-	List<EmployeeEntity> findEmployeeByGivenCriteria(List<EmployeeSearchCriteria> params);
+	List<EmployeeEntity> findEmployeeByGivenCriteria(EmployeeSearchCriteria param);
 }

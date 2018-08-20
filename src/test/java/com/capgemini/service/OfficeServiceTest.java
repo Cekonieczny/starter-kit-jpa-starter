@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +23,6 @@ import com.capgemini.domain.CompanyPosition;
 import com.capgemini.domain.EmployeeEntity;
 import com.capgemini.domain.Name;
 import com.capgemini.domain.OfficeEntity;
-import com.capgemini.mappers.CarMapper;
 import com.capgemini.mappers.EmployeeMapper;
 import com.capgemini.mappers.OfficeMapper;
 import com.capgemini.searchcriteria.EmployeeSearchCriteria;
@@ -72,9 +70,9 @@ public class OfficeServiceTest {
 
 		// given
 		OfficeTO testOffice = getTestOfficeTO();
-		OfficeTO savedOffice = officeService.saveOffice(testOffice);
+		OfficeEntity savedOffice = officeRepository.save(OfficeMapper.toOfficeEntity(testOffice));
 		// when
-		OfficeTO updatedOffice = savedOffice;
+		OfficeTO updatedOffice = OfficeMapper.toOfficeTO(savedOffice);
 		String updatedPhoneNumber = "+48222333555";
 		String updatedAddress = "Długa 22, Poznań";
 		updatedOffice.setPhoneNumber(updatedPhoneNumber);
@@ -108,19 +106,24 @@ public class OfficeServiceTest {
 
 		// given
 		OfficeTO testOffice = getTestOfficeTO();
+		OfficeTO testOffice2 = getTestOfficeTO();
 		EmployeeEntity testEmployee = getTestEmployeeEntity();
+		EmployeeEntity testEmployee2 = getTestEmployeeEntity();
 
-		OfficeTO searchedOffice = officeService.saveOffice(testOffice);
-		testEmployee.setOfficeEntity(OfficeMapper.toOfficeEntity(searchedOffice));
+		OfficeEntity searchedOffice = officeRepository.save(OfficeMapper.toOfficeEntity(testOffice));
+		OfficeEntity notSearchedOffice = officeRepository.save(OfficeMapper.toOfficeEntity(testOffice2));
+		
+		testEmployee.setOfficeEntity(searchedOffice);
+		testEmployee2.setOfficeEntity(notSearchedOffice);
 
-		EmployeeEntity searchedEmployee = employeeRepository.save(testEmployee);
+		EmployeeEntity employeeToBeSelected = employeeRepository.save(testEmployee);
 
 		// when
 		Set<EmployeeTO> selectedEmployees = officeService.findEmployeesByOffice(searchedOffice.getId());
 		// then
 		assertNotNull(selectedEmployees);
 		assertEquals(1, selectedEmployees.size());
-		assertTrue(EmployeeMapper.toEmployeeTO(searchedEmployee).equals(selectedEmployees.iterator().next()));
+		assertTrue(EmployeeMapper.toEmployeeTO(employeeToBeSelected).equals(selectedEmployees.iterator().next()));
 	}
 
 	@Test
@@ -128,16 +131,26 @@ public class OfficeServiceTest {
 
 		// given
 		OfficeTO testOffice = getTestOfficeTO();
+		OfficeTO testOffice2 = getTestOfficeTO();
 		EmployeeEntity testEmployee = getTestEmployeeEntity();
+		EmployeeEntity testEmployee2 = getTestEmployeeEntity();
 		CarTO testCar = getTestCarTO();
+		CarTO testCar2 = getTestCarTO();
 
-		OfficeTO searchedOffice = officeService.saveOffice(testOffice);
-		testEmployee.setOfficeEntity(OfficeMapper.toOfficeEntity(searchedOffice));
+		OfficeEntity searchedOffice = officeRepository.save(OfficeMapper.toOfficeEntity(testOffice));
+		OfficeEntity notSearchedOffice = officeRepository.save(OfficeMapper.toOfficeEntity(testOffice2));
+		testEmployee.setOfficeEntity(searchedOffice);
+		testEmployee2.setOfficeEntity(notSearchedOffice);
 
-		EmployeeEntity searchedEmployee = employeeRepository.save(testEmployee);
+		EmployeeEntity employeeWithSearchedOffice = employeeRepository.save(testEmployee);
+		EmployeeEntity employeeWithNotSearchedOffice = employeeRepository.save(testEmployee2);
 
 		CarTO searchedCar = carService.saveCar(testCar);
-		carService.assignCarToKeeper(searchedEmployee.getId(), searchedCar.getId());
+		CarTO notSearchedCar = carService.saveCar(testCar2);
+		
+		carService.assignCarToKeeper(employeeWithSearchedOffice.getId(), searchedCar.getId());
+		carService.assignCarToKeeper(employeeWithNotSearchedOffice.getId(), notSearchedCar.getId());
+		carService.assignCarToKeeper(employeeWithSearchedOffice.getId(), notSearchedCar.getId());
 
 		// when
 		Set<EmployeeTO> selectedEmployees = officeService.findEmployeesByOfficeAndCarKeeped(searchedOffice.getId(),
@@ -145,7 +158,7 @@ public class OfficeServiceTest {
 		// then
 		assertNotNull(selectedEmployees);
 		assertEquals(1, selectedEmployees.size());
-		assertTrue(EmployeeMapper.toEmployeeTO(searchedEmployee).equals(selectedEmployees.iterator().next()));
+		assertTrue(EmployeeMapper.toEmployeeTO(employeeWithSearchedOffice).equals(selectedEmployees.iterator().next()));
 	}
 
 	@Test
@@ -153,7 +166,7 @@ public class OfficeServiceTest {
 
 		// given
 		OfficeTO testOffice = getTestOfficeTO();
-		OfficeTO savedOffice = officeService.saveOffice(testOffice);
+		OfficeEntity savedOffice = officeRepository.save(OfficeMapper.toOfficeEntity(testOffice));
 
 		EmployeeEntity testEmployee = getTestEmployeeEntity();
 		EmployeeEntity savedEmployee = employeeRepository.save(testEmployee);
@@ -173,7 +186,7 @@ public class OfficeServiceTest {
 
 		// given
 		OfficeTO testOffice = getTestOfficeTO();
-		OfficeTO savedOffice = officeService.saveOffice(testOffice);
+		OfficeEntity savedOffice = officeRepository.save(OfficeMapper.toOfficeEntity(testOffice));
 
 		EmployeeEntity testEmployee = getTestEmployeeEntity();
 		EmployeeEntity savedEmployee = employeeRepository.save(testEmployee);
@@ -195,18 +208,18 @@ public class OfficeServiceTest {
 	@Test
 	public void shouldSearchForEmployeesByAllCriteria(){
 		//given
-		OfficeTO savedOffice = officeService.saveOffice(getTestOfficeTO());
+		OfficeTO testOffice = getTestOfficeTO();
+		OfficeEntity savedOffice = officeRepository.save(OfficeMapper.toOfficeEntity(testOffice));
+		
 		EmployeeEntity testEmployee = getTestEmployeeEntity();
 		CarTO savedCar = carService.saveCar(getTestCarTO());
-		testEmployee.setOfficeEntity(OfficeMapper.toOfficeEntity(savedOffice));
+		testEmployee.setOfficeEntity(savedOffice);
 		EmployeeEntity savedEmployee = employeeRepository.save(testEmployee);
 		carService.assignCarToKeeper(savedEmployee.getId(), savedCar.getId());
 		
 		EmployeeSearchCriteria employeeCriteria = new EmployeeSearchCriteria(savedOffice.getId(),savedCar.getId(),CompanyPosition.DEALER);
-		List<EmployeeSearchCriteria> listOfSearchCriteria = new LinkedList<EmployeeSearchCriteria>();
-		listOfSearchCriteria.add(employeeCriteria);
 		//when
-		List<EmployeeEntity> foundEmployees = employeeRepository.findEmployeeByGivenCriteria(listOfSearchCriteria);
+		List<EmployeeEntity> foundEmployees = employeeRepository.findEmployeeByGivenCriteria(employeeCriteria);
 		//then
 		assertEquals(1,foundEmployees.size());
 		assertTrue(foundEmployees.contains(savedEmployee));
@@ -222,10 +235,8 @@ public class OfficeServiceTest {
 		
 		EmployeeSearchCriteria employeeCriteria = new EmployeeSearchCriteria();
 		employeeCriteria.setKeepedCarId(savedCar.getId());
-		List<EmployeeSearchCriteria> listOfSearchCriteria = new LinkedList<EmployeeSearchCriteria>();
-		listOfSearchCriteria.add(employeeCriteria);
 		//when
-		List<EmployeeEntity> foundEmployees = employeeRepository.findEmployeeByGivenCriteria(listOfSearchCriteria);
+		List<EmployeeEntity> foundEmployees = employeeRepository.findEmployeeByGivenCriteria(employeeCriteria);
 		//then
 		assertEquals(1,foundEmployees.size());
 		assertTrue(foundEmployees.contains(savedEmployee));
@@ -234,17 +245,17 @@ public class OfficeServiceTest {
 	@Test
 	public void shouldSearchForEmployeesByOfficeOnly(){
 		//given
-		OfficeTO savedOffice = officeService.saveOffice(getTestOfficeTO());
+		OfficeTO testOffice = getTestOfficeTO();
+		OfficeEntity savedOffice = officeRepository.save(OfficeMapper.toOfficeEntity(testOffice));
+		
 		EmployeeEntity testEmployee = getTestEmployeeEntity();
-		testEmployee.setOfficeEntity(OfficeMapper.toOfficeEntity(savedOffice));
+		testEmployee.setOfficeEntity(savedOffice);
 		EmployeeEntity savedEmployee = employeeRepository.save(testEmployee);
 		
 		EmployeeSearchCriteria employeeCriteria = new EmployeeSearchCriteria();
 		employeeCriteria.setOfficeId(savedOffice.getId());
-		List<EmployeeSearchCriteria> listOfSearchCriteria = new LinkedList<EmployeeSearchCriteria>();
-		listOfSearchCriteria.add(employeeCriteria);
 		//when
-		List<EmployeeEntity> foundEmployees = employeeRepository.findEmployeeByGivenCriteria(listOfSearchCriteria);
+		List<EmployeeEntity> foundEmployees = employeeRepository.findEmployeeByGivenCriteria(employeeCriteria);
 		//then
 		assertEquals(1,foundEmployees.size());
 		assertTrue(foundEmployees.contains(savedEmployee));
@@ -257,10 +268,8 @@ public class OfficeServiceTest {
 		EmployeeEntity savedEmployee = employeeRepository.save(testEmployee);
 		
 		EmployeeSearchCriteria employeeCriteria = new EmployeeSearchCriteria();
-		List<EmployeeSearchCriteria> listOfSearchCriteria = new LinkedList<EmployeeSearchCriteria>();
-		listOfSearchCriteria.add(employeeCriteria);
 		//when
-		List<EmployeeEntity> foundEmployees = employeeRepository.findEmployeeByGivenCriteria(listOfSearchCriteria);
+		List<EmployeeEntity> foundEmployees = employeeRepository.findEmployeeByGivenCriteria(employeeCriteria);
 		//then
 		assertEquals(1,foundEmployees.size());
 		assertTrue(foundEmployees.contains(savedEmployee));

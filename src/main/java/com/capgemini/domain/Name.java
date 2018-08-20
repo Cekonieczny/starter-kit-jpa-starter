@@ -1,10 +1,15 @@
 package com.capgemini.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class Name {
+public class Name implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	
 	@Column(nullable = false, length = 30)
 	private String firstName;
 	@Column(nullable = false, length = 30)

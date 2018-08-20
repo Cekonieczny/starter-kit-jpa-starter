@@ -1,5 +1,6 @@
 package com.capgemini.dao.impl;
 
+import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,23 @@ public class CarDaoImpl extends AbstractDao<CarEntity, Long> implements CarDao {
 				CarEntity.class);
 		query.setParameter("employeeId", employeeId);
 		return query.getResultList().stream().collect(Collectors.toSet());
+	}
+
+	@Override
+	public Set<CarEntity> findCarLoanedByMoreThanTenDistinctCustomers() {
+		
+		TypedQuery<CarEntity> query = entityManager.createQuery("SELECT c FROM CarEntity c JOIN c.loanEntities l GROUP BY c.id HAVING (count(DISTINCT l.customerEntity)) > 10",
+				CarEntity.class);
+		return query.getResultList().stream().collect(Collectors.toSet());
+	}
+
+	@Override
+	public Long countNumberOfCarsLoanedInACertainPeriodOfTime(Date dateFrom, Date dateTo) {
+		TypedQuery<Long> query = entityManager.createQuery("SELECT count(c) FROM CarEntity c JOIN c.loanEntities l WHERE l.dateFrom <= :dateTo AND l.dateTo >= :dateFrom",
+				Long.class);
+		query.setParameter("dateTo", dateTo);
+		query.setParameter("dateFrom", dateFrom);
+		return query.getSingleResult();
 	}
 	
 }

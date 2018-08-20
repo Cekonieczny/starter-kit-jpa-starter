@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "LOAN")
-public class LoanEntity implements Serializable {
+public class LoanEntity extends AbstractTimestampEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
