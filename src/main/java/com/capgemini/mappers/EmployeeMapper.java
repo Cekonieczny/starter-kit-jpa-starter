@@ -47,7 +47,7 @@ public class EmployeeMapper {
 		return employeeEntities.stream().map(EmployeeMapper::toEmployeeTO).collect(Collectors.toSet());
 	}
 
-	public static Set<EmployeeEntity> map2Entities(Set<EmployeeTO> EmployeeTOs) {
-		return EmployeeTOs.stream().map(EmployeeMapper::toEmployeeEntity).collect(Collectors.toSet());
+	public static Set<EmployeeEntity> map2Entities(Set<EmployeeTO> employeeTOs) {
+		return employeeTOs.stream().map(EmployeeMapper::toEmployeeEntity).collect(Collectors.toSet());
 	}
 }

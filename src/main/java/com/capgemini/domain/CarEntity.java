@@ -50,11 +50,11 @@ public class CarEntity extends AbstractTimestampEntity implements Serializable {
 	private CarType carType;
 
 	@OneToMany(mappedBy = "carEntity",fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
-	private Set<LoanEntity> loanEntities = new HashSet<LoanEntity>();
+	private Set<LoanEntity> loanEntities = new HashSet<>();
 	
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name="KEEPER",joinColumns={ @JoinColumn(name = "employee_id") },inverseJoinColumns = { @JoinColumn(name = "car_id")})
-	private Set<EmployeeEntity> employeeEntities = new HashSet<EmployeeEntity>();
+	private Set<EmployeeEntity> employeeEntities = new HashSet<>();
 	
 	// for hibernate
 	public CarEntity() {

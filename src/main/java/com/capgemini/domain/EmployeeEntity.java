@@ -41,7 +41,7 @@ public class EmployeeEntity extends AbstractTimestampEntity implements Serializa
 	private CompanyPosition companyPosition;
 
 	@ManyToMany(mappedBy = "employeeEntities", fetch = FetchType.LAZY)
-	private Set<CarEntity> carEntities = new HashSet<CarEntity>();
+	private Set<CarEntity> carEntities = new HashSet<>();
 
 	// for hibernate
 	public EmployeeEntity() {

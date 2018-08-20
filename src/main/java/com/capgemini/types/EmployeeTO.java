@@ -14,7 +14,7 @@ public class EmployeeTO {
 	private Date birthDate;
 	private OfficeTO officeTO;
 	private CompanyPosition companyPosition;
-	private Set<CarTO> carTOs = new HashSet<CarTO>();
+	private Set<CarTO> carTOs = new HashSet<>();
 
 	public EmployeeTO(Long id, Name name, Date birthDate, OfficeTO officeTO, CompanyPosition companyPosition,
 			Set<CarTO> carTOs) {
@@ -78,11 +78,11 @@ public class EmployeeTO {
 		}
 
 		public EmployeeTO build() {
-			checkBeforeBuild(name, birthDate, officeTO, companyPosition);
+			checkBeforeBuild(name, birthDate, companyPosition);
 			return new EmployeeTO(id, name, birthDate, officeTO, companyPosition, carTOs);
 		}
 
-		private void checkBeforeBuild(Name name, Date birthDate, OfficeTO officeTO, CompanyPosition companyPosition) {
+		private void checkBeforeBuild(Name name, Date birthDate, CompanyPosition companyPosition) {
 			if (name.getFirstName() == null || name.getFirstName().isEmpty() || name.getLastName() == null
 					|| name.getLastName().isEmpty() || birthDate == null || companyPosition == null) {
 				throw new RuntimeException("Incorrect employee to be created");

@@ -51,7 +51,8 @@ public class CarTO {
 		private int yearOfManufacture;
 		private Color color;
 		private CarType carType;
-
+		
+		//for hibernate
 		public CarTOBuilder() {
 		}
 		

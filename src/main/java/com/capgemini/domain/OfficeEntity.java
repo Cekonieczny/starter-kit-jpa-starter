@@ -26,7 +26,7 @@ public class OfficeEntity extends AbstractTimestampEntity implements Serializabl
 	private String phoneNumber;
 
 	@OneToMany(mappedBy = "officeEntity")
-	private Set<EmployeeEntity> employeeEntities = new HashSet<EmployeeEntity>();
+	private Set<EmployeeEntity> employeeEntities = new HashSet<>();
 
 	// for hibernate
 	public OfficeEntity() {

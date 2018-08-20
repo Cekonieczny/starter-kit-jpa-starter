@@ -44,7 +44,7 @@ public class EmployeeDaoImpl extends AbstractDao<EmployeeEntity, Long> implement
 		CriteriaQuery<EmployeeEntity> cq = cb.createQuery(EmployeeEntity.class);
 		Root<EmployeeEntity> employee = cq.from(EmployeeEntity.class);
 
-		List<Predicate> predicates = new ArrayList<Predicate>();
+		List<Predicate> predicates = new ArrayList<>();
 
 			if (param.getOfficeId() != null) {
 				predicates.add((employee.join("officeEntity").get("id").in(param.getOfficeId())));
